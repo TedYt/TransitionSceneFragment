@@ -4,21 +4,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!--<TextView
-        android:id="@+id/tv"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:text="This is friend fragment"/>-->
-
     <View
         android:id="@+id/circle"
         android:layout_width="60dp"
         android:layout_height="60dp"
         android:background="@drawable/oval2"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
-        android:layout_marginRight="16dp"
-        android:layout_marginBottom="16dp"/>
+        android:layout_centerInParent="true"/>
 
 </RelativeLayout>

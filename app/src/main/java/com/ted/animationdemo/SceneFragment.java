@@ -41,7 +41,7 @@ public class SceneFragment extends Fragment implements RadioGroup.OnCheckedChang
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.scene_fragment,container,false);
-        RadioGroup radioGroup = (RadioGroup) view.findViewById(R.id.scene_select);
+        RadioGroup radioGroup = (RadioGroup) view.findViewById(R.id.scene_select_radiog);
         radioGroup.setOnCheckedChangeListener(this);
 
         sceneRoot = (FrameLayout) view.findViewById(R.id.scene_root);

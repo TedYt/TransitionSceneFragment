@@ -15,7 +15,7 @@
         android:orientation="vertical">
 
         <RadioGroup
-            android:id="@+id/scene_select"
+            android:id="@+id/scene_select_radiog"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
