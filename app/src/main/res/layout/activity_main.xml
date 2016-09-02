@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.ted.animationdemo.MainActivity">
+
+    <fragment
+        android:id="@+id/title_frg"
+        android:name="com.ted.animationdemo.TitleFragment"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"/>
+
+    <include
+        android:id="@+id/button_area"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_alignParentBottom="true"
+        layout="@layout/bottom_button"/>
+
+    <FrameLayout
+        android:id="@+id/fra_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/title_frg"
+        android:layout_above="@id/button_area"/>
+    <!--<fragment
+        android:id="@+id/content_frg"
+        android:name="com.ted.animationdemo.SceneFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/title_frg"/>-->
+
+</RelativeLayout>
