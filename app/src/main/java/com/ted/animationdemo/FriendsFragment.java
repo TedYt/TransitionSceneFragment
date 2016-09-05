@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewAnimationUtils;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
@@ -33,43 +34,93 @@ import android.widget.Button;
  * limitations under the License.
  * <p/>
  * Created by Ted.Yt on 9/1/16.
+ *
+ *
+ *
+ * Scene1 到 scene2 enterAction 和 ExitAction的执行顺序
+ * 调用TransitionManager.go(scene2) 执行scene2的enterAction,
+ * 然后调用TransitionManager.go(scene1)执行scene2 exitAction, 然后是scene1 enterAction
  */
 public class FriendsFragment extends Fragment implements View.OnClickListener {
 
-    View container;
     ViewGroup root;
     Scene scene1;
     Scene scene2;
     Scene scene3;
 
-    View myView;
+    int myViewWidth;
+    int myViewHeight;
 
-    Button mBack;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        View view = inflater.inflate(R.layout.friend_fragment_scene3,container,true);
-        mBack = (Button) view.findViewById(R.id.back);
-        mBack.setOnClickListener(this);
-
-        view = inflater.inflate(R.layout.friend,container,false);
+        View view = inflater.inflate(R.layout.friend,container,false);
 
         root = (ViewGroup) view.findViewById(R.id.friend_root);
-        myView = view.findViewById(R.id.circle);
-        myView.setOnClickListener(this);
-
 
         scene1 = Scene.getSceneForLayout(root, R.layout.friend_fragment,getActivity());
+        scene1.setEnterAction(new Runnable() {
+            @Override
+            public void run() {
+                Log.d("tui", "scene 1 enterAction");
+                final View view1 = root.findViewById(R.id.circle);
+                ViewTreeObserver vto = view1.getViewTreeObserver();
+                vto.addOnGlobalFocusChangeListener(new ViewTreeObserver.OnGlobalFocusChangeListener() {
+                    @Override
+                    public void onGlobalFocusChanged(View oldFocus, View newFocus) {
+                        //setSize(view1.getMeasuredWidth(),view1.getMeasuredHeight());
+                    }
+                });
+                view1.setOnClickListener(FriendsFragment.this);
+            }
+        });
+        scene1.setExitAction(new Runnable() {
+            @Override
+            public void run() {
+                Log.d("tui", "scene 1 exitAction");
+            }
+        });
         scene2 = Scene.getSceneForLayout(root, R.layout.friend_fragment_scene2, getActivity());
-        //scene3 = Scene.getSceneForLayout(root, R.layout.friend_fragment_scene3,getActivity());
-
+        scene2.setEnterAction(new Runnable() {
+            @Override
+            public void run() {
+                Log.d("tui", "scene 2enterAction");
+            }
+        });
+        scene2.setExitAction(new Runnable() {
+            @Override
+            public void run() {
+                Log.d("tui", "scene 2 exitAction");
+            }
+        });
+        scene3 = Scene.getSceneForLayout(root, R.layout.friend_fragment_scene3,getActivity());
+        scene3.setEnterAction(new Runnable() {
+            @Override
+            public void run() {
+                Button btn = (Button) root.findViewById(R.id.back);
+                btn.setVisibility(View.VISIBLE);
+                btn.setOnClickListener(FriendsFragment.this);
+            }
+        });
         return view;
     }
 
+    private void setSize(int measuredWidth, int measuredHeight) {
+        myViewWidth = measuredWidth;
+        myViewHeight = measuredHeight;
+        Log.d("tui", "setSize, myViewWidth = " + myViewWidth + ", myViewHeight = " + myViewHeight);
+    }
+
     @Override
-    public void onClick(View v) {
+    public void onResume() {
+        super.onResume();
+        TransitionManager.go(scene1);
+    }
+
+    @Override
+    public void onClick(final View v) {
 
         switch (v.getId()){
             case R.id.circle:
@@ -82,7 +133,7 @@ public class FriendsFragment extends Fragment implements View.OnClickListener {
 
                     @Override
                     public void onTransitionEnd(Transition transition) {
-                        circleRevealShow();
+                        circleRevealShow(v);
                     }
 
                     @Override
@@ -95,10 +146,11 @@ public class FriendsFragment extends Fragment implements View.OnClickListener {
                     public void onTransitionResume(Transition transition) {}
                 });
                 TransitionManager.go(scene2,transition);
-
+                Log.d("tui", "go to scene 2");
                 break;
             case R.id.back:
-                circleHide();
+                TransitionManager.go(scene2);
+                circleHide(v);
                 break;
         }
     }
@@ -106,16 +158,13 @@ public class FriendsFragment extends Fragment implements View.OnClickListener {
 
     /**
      * 圆圈收缩
+     * @param v
      */
-    private void circleHide() {
-        int[] location = new int[2];
-        mBack.getLocationOnScreen(location);
-        int x = location[0];
-        int y = location[1];
+    private void circleHide(final View v) {
 
         float initR = (float)Math.hypot(root.getWidth(),root.getHeight());
-        float finalR = myView.getWidth() / 2;
-
+        float finalR = v.getWidth() / 2;//myViewWidth / 2 ;//myView.getWidth() / 2;
+        Log.d("tui", "circleHide, finalR = " + finalR);
         Animator anim = ViewAnimationUtils.createCircularReveal(
                 root,
                 (root.getLeft() + root.getRight()) / 2,
@@ -131,7 +180,7 @@ public class FriendsFragment extends Fragment implements View.OnClickListener {
 
             @Override
             public void onAnimationEnd(Animator animation) {
-                backToScene1();
+                backToScene1(v);
             }
 
             @Override
@@ -143,32 +192,32 @@ public class FriendsFragment extends Fragment implements View.OnClickListener {
             }
         });
         anim.start();
+
     }
 
     /**
      * 退回到scene1
+     * @param v
      */
-    private void backToScene1() {
-        mBack.setVisibility(View.INVISIBLE);
+    private void backToScene1(View v) {
         root.setBackgroundColor(getResources().getColor(android.R.color.transparent));
 
         Transition transition = TransitionInflater.from(getActivity())
                 .inflateTransition(R.transition.friend_tr2);
 
         TransitionManager.go(scene1,transition);
+        Log.d("tui", "go to scene 1");
     }
 
     /**
      * 圆圈扩展
+     * @param v
      */
-    private void circleRevealShow() {
-        int[] location = new int[2];
-        myView.getLocationOnScreen(location);
-        int x = location[0];
-        int y = location[1];
+    private void circleRevealShow(View v) {
 
-        int initR = myView.getWidth()/2;
+        int initR = v.getWidth()/2;//myViewWidth / 2;//myView.getWidth()/2;
         float finalR = (float)Math.hypot(root.getWidth(),root.getHeight());
+        Log.d("tui", "circleRevealShow, initR = " + initR);
 
         root.setBackgroundColor(getResources().getColor(R.color.colorBg));
         Animator anim = ViewAnimationUtils.createCircularReveal(
@@ -186,8 +235,7 @@ public class FriendsFragment extends Fragment implements View.OnClickListener {
 
             @Override
             public void onAnimationEnd(Animator animation) {
-                //TransitionManager.go(scene3);
-                mBack.setVisibility(View.VISIBLE);
+                TransitionManager.go(scene3);
             }
 
             @Override
