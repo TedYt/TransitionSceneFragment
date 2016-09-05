@@ -103,6 +103,10 @@ public class FriendsFragment extends Fragment implements View.OnClickListener {
         }
     }
 
+
+    /**
+     * 圆圈收缩
+     */
     private void circleHide() {
         int[] location = new int[2];
         mBack.getLocationOnScreen(location);
@@ -141,6 +145,9 @@ public class FriendsFragment extends Fragment implements View.OnClickListener {
         anim.start();
     }
 
+    /**
+     * 退回到scene1
+     */
     private void backToScene1() {
         mBack.setVisibility(View.INVISIBLE);
         root.setBackgroundColor(getResources().getColor(android.R.color.transparent));
@@ -151,6 +158,9 @@ public class FriendsFragment extends Fragment implements View.OnClickListener {
         TransitionManager.go(scene1,transition);
     }
 
+    /**
+     * 圆圈扩展
+     */
     private void circleRevealShow() {
         int[] location = new int[2];
         myView.getLocationOnScreen(location);
